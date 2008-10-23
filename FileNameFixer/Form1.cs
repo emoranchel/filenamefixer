@@ -86,6 +86,15 @@ namespace FileNameFixer {
       listView1.Items.Clear();
       if (radioFiles.Checked) {
         fileMode = true;
+      } else {
+        fileMode = false;
+      }
+      recurseAdd(patterns, fileMode, dir, this.chRecursive.Checked);
+      button5_Click(sender, e);
+    }
+
+    private void recurseAdd(List<string> patterns, bool files, DirectoryInfo dir, bool crawl) {
+      if (files) {
         FileInfo[] infos = dir.GetFiles();
         foreach (FileInfo f in infos) {
           string filename = f.Name;
@@ -95,13 +104,17 @@ namespace FileNameFixer {
           addData(patterns, f.DirectoryName, filename, f.Extension);
         }
       } else {
-        fileMode = false;
         DirectoryInfo[] infos = dir.GetDirectories();
         foreach (DirectoryInfo d in infos) {
           addData(patterns, d.Parent.FullName, d.Name, "");
         }
       }
-      button5_Click(sender, e);
+      if (crawl) {
+        DirectoryInfo[] infos = dir.GetDirectories();
+        foreach (DirectoryInfo d in infos) {
+          recurseAdd(patterns, files, d, crawl);
+        }
+      }
     }
 
     private void addData(List<String> patterns, string path, string fileName, string extension) {
@@ -184,7 +197,7 @@ namespace FileNameFixer {
           finalName = finalName.Trim();
         }
       }
-      listView1.Items.Add(new ListViewItem(new String[] { "", fileName, finalName, path, extension}));
+      listView1.Items.Add(new ListViewItem(new String[] { "", fileName, finalName, path, extension }));
     }
 
     private void button3_Click(object sender, EventArgs e) {
